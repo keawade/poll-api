@@ -23,13 +23,32 @@ export class AuthController {
   public registerUser(
     @Response() res,
     @Request() req,
-    @Body('username') username,
-    @Body('displayname') displayname,
-    @Body('password') password,
+    @Body('username') username: string,
+    @Body('displayname') displayname: string,
+    @Body('password') password: string,
   ) {
     try {
       if (!username || !displayname || !password) {
-        return res.status(HttpStatus.BAD_REQUEST).json({ error: 'User object not valid.' });
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ error: 'User object not valid' });
+      }
+
+      if (!username.match(/^[\w-]{3,}$/)) {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ error: 'Username invalid' });
+      }
+
+      if (
+        !(password.length > 8) ||
+        !password.match(new RegExp(/[a-z]/, 'g')) ||
+        !password.match(new RegExp(/[A-Z]/, 'g')) ||
+        !password.match(new RegExp(/[0-9]/, 'g'))
+        ) {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ error: 'Password to simple' });
       }
 
       // Encrypt password
