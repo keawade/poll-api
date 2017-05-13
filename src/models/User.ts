@@ -2,24 +2,24 @@ import * as mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema(
   {
-    username: {
-      type: String,
-      required: true,
-      index: {
-        unique: true
-      }
-    },
     displayname: {
-      type: String,
       required: true,
+      type: String,
     },
     password: {
-      type: String,
       required: true,
+      type: String,
+    },
+    username: {
+      index: {
+        unique: true,
+      },
+      required: true,
+      type: String,
     },
   }, {
     timestamps: true,
-  }
+  },
 );
 
 userSchema.pre('save', function (next) {
@@ -29,8 +29,8 @@ userSchema.pre('save', function (next) {
     } else {
       next(new Error('user exists'));
     }
-  })
-})
+  });
+});
 
 const User = mongoose.model('user', userSchema);
 

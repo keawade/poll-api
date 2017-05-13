@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Response, Param, HttpStatus } from 'nest.js';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  HttpStatus,
+  Param,
+  Post,
+  Request,
+  Response,
+} from 'nest.js';
 import { PollService } from './poll.service';
 
 @Controller('poll')
@@ -10,7 +20,7 @@ export class PollController {
     try {
       res.status(HttpStatus.OK).json('It worked!');
     } catch (err) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: err })
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: err });
     }
   }
 }

@@ -3,7 +3,7 @@ import { PollController } from './poll.controller';
 import { PollService } from './poll.service';
 
 @Module({
-  controllers: [PollController],
   components: [PollService],
+  controllers: [PollController],
 })
 export class PollModule { }

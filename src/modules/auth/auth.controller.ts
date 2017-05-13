@@ -1,15 +1,32 @@
-import { Controller, Get, Post, Response, Request, Body, Headers, Param, HttpStatus } from 'nest.js';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  HttpStatus,
+  Param,
+  Post,
+  Request,
+  Response,
+} from 'nest.js';
 import { AuthService } from './auth.service';
-import User from '../../models/User';
-import * as jwt from 'jsonwebtoken';
+
 import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
+import User from '../../models/User';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) { }
 
   @Post('register')
-  public registerUser( @Response() res, @Request() req, @Body('username') username, @Body('displayname') displayname, @Body('password') password) {
+  public registerUser(
+    @Response() res,
+    @Request() req,
+    @Body('username') username,
+    @Body('displayname') displayname,
+    @Body('password') password,
+    ) {
     try {
       if (!username || !displayname || !password) {
         return res.status(HttpStatus.BAD_REQUEST).json({ error: 'User object not valid.' });
@@ -25,21 +42,24 @@ export class AuthController {
             console.error(`[auth] failed to create user, '${username}' already exists`);
             return res
               .status(HttpStatus.CONFLICT)
-              .json({ error: 'User already exists' })
+              .json({ error: 'User already exists' });
           }
           console.error(`[auth] failed to create user, '${username}'`, err);
           return res
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .json({ error: 'Failed to create user' })
+            .json({ error: 'Failed to create user' });
         }
         console.log(`[auth] successfully created user, '${savedUser.username}'`);
-        const token = jwt.sign({ username: savedUser.username, _id: savedUser._id }, 'asldfkjasldfjaslkdjfalksgjhoiuqfbhdnvijknb');
+        const token = jwt.sign({
+          _id: savedUser._id,
+          username: savedUser.username,
+        }, 'asldfkjasldfjaslkdjfalksgjhoiuqfbhdnvijknb');
         return res
           .status(HttpStatus.CREATED)
           .json({
-            username: savedUser.username,
             displayname: savedUser.displayname,
-            token
+            username: savedUser.username,
+            token,
           });
       });
     } catch (err) {
@@ -59,7 +79,7 @@ export class AuthController {
           .json({ error: 'User object not valid' });
       }
 
-      User.findOne({ username: username }, (err, user: IUser) => {
+      User.findOne({ username }, (err, user: IUser) => {
         if (err) {
           console.error(`[auth] failed to login`, err);
           return res
@@ -76,13 +96,16 @@ export class AuthController {
 
         if (bcrypt.compareSync(password, user.password)) {
           console.info(`[auth] user '${user.username}' logged in`);
-          const token = jwt.sign({ username: user.username, _id: user._id }, 'asldfkjasldfjaslkdjfalksgjhoiuqfbhdnvijknb');
+          const token = jwt.sign({
+            _id: user._id,
+            username: user.username,
+          }, 'asldfkjasldfjaslkdjfalksgjhoiuqfbhdnvijknb');
           return res
             .status(HttpStatus.OK)
             .json({
-              username: user.username,
               displayname: user.displayname,
-              token
+              username: user.username,
+              token,
             });
         } else {
           console.warn(`[auth] user '${user.username}' failed to authenticate`);
@@ -90,7 +113,7 @@ export class AuthController {
             .status(HttpStatus.UNAUTHORIZED)
             .json({ error: 'Unauthorized' });
         }
-      })
+      });
     } catch (err) {
       console.error('[auth] login - internal error', err);
       return res

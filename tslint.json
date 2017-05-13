@@ -1,0 +1,17 @@
+{
+  "extends": "tslint:recommended",
+  "rules": {
+    "quotemark": [
+      true,
+      "single",
+      "avoid-escape"
+    ],
+    "no-console": false,
+    "space-before-function-paren": [
+      true,
+      {
+        "method": "never"
+      }
+    ]
+  }
+}
