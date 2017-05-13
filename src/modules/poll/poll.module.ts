@@ -1,5 +1,6 @@
-import { Module } from 'nest.js';
+import { MiddlewaresConsumer, Module } from 'nest.js';
 
+import {AuthMiddleware} from '../auth/auth.middleware';
 import { AuthService } from '../auth/auth.service';
 import { PollController } from './poll.controller';
 import { PollService } from './poll.service';
@@ -8,4 +9,8 @@ import { PollService } from './poll.service';
   components: [PollService, AuthService],
   controllers: [PollController],
 })
-export class PollModule { }
+export class PollModule {
+  private configure(consumer: MiddlewaresConsumer) {
+    consumer.apply(AuthMiddleware).forRoutes(PollController);
+  }
+}

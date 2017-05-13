@@ -22,11 +22,13 @@ export class PollController {
   @Get()
   public async getAllPolls(
     @Headers('token') token: string,
+    @Request() req,
     @Response() res,
   ) {
+    const polls = await this.pollService.getUsersPolls(req.user.username);
     return res
       .status(HttpStatus.OK)
-      .json('stuff');
+      .json(polls);
   }
 
   @Post()
@@ -35,27 +37,28 @@ export class PollController {
     @Body('options') options: string[],
     @Body('visibility') visibility: 'private' | 'public' = 'public',
     @Headers('token') token: string,
+    @Request() req,
     @Response() res,
   ) {
     try {
-      let decoded;
-      try {
-        decoded = jwt.verify(token, 'asldfkjasldfjaslkdjfalksgjhoiuqfbhdnvijknb');
-      } catch (err) {
-        return res
-          .status(HttpStatus.UNAUTHORIZED)
-          .json({ error: 'Unauthorized' });
-      }
+      // let decoded;
+      // try {
+      //   decoded = jwt.verify(token, 'asldfkjasldfjaslkdjfalksgjhoiuqfbhdnvijknb');
+      // } catch (err) {
+      //   return res
+      //     .status(HttpStatus.UNAUTHORIZED)
+      //     .json({ error: 'Unauthorized' });
+      // }
 
-      const user = await this.authService.getUser(decoded.username);
-      if (!user) {
+      // const user = await this.authService.getUser(decoded.username);
+      if (!req.user) {
         return res
           .status(HttpStatus.UNAUTHORIZED)
           .json({ error: 'Unauthorized' });
       }
 
       const pollData = {
-        owner: decoded.username,
+        owner: req.user.username,
         question,
         options,
         responses: [],
