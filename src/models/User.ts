@@ -1,17 +1,33 @@
 import * as mongoose from 'mongoose';
 
-const userSchema = new mongoose.Schema({
-  userName: String,
-  displayName: String,
-})
+const userSchema = new mongoose.Schema(
+  {
+    username: {
+      type: String,
+      required: true,
+      index: {
+        unique: true
+      }
+    },
+    displayname: {
+      type: String,
+      required: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+  }, {
+    timestamps: true,
+  }
+);
 
 userSchema.pre('save', function (next) {
-  User.find({ userName: this.userName }, (err, docs) => {
+  User.find({ username: this.username }, (err, docs) => {
     if (!docs.length) {
       next();
     } else {
-      console.error(`[UserModel] user '${this.userName}' already exists`);
-      next (new Error('user exists'));
+      next(new Error('user exists'));
     }
   })
 })
