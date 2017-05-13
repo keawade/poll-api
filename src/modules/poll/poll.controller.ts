@@ -16,7 +16,9 @@ export class PollController {
   constructor(private pollService: PollService) { }
 
   @Get()
-  public testResponse( @Response() res) {
+  public testResponse(
+    @Response() res,
+  ) {
     try {
       res.status(HttpStatus.OK).json('It worked!');
     } catch (err) {

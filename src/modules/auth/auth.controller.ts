@@ -26,7 +26,7 @@ export class AuthController {
     @Body('username') username,
     @Body('displayname') displayname,
     @Body('password') password,
-    ) {
+  ) {
     try {
       if (!username || !displayname || !password) {
         return res.status(HttpStatus.BAD_REQUEST).json({ error: 'User object not valid.' });
@@ -71,7 +71,11 @@ export class AuthController {
   }
 
   @Post('login')
-  public authUser( @Response() res, @Body('username') username, @Body('password') password) {
+  public authUser(
+    @Response() res,
+    @Body('username') username,
+    @Body('password') password,
+  ) {
     try {
       if (!username || !password) {
         return res
@@ -123,7 +127,12 @@ export class AuthController {
   }
 
   @Post(':user')
-  public updateUser( @Response() res, @Headers('token') token, @Param('user') user, @Body() body) {
+  public updateUser(
+    @Response() res,
+    @Headers('token') token,
+    @Param('user') user,
+    @Body() body,
+  ) {
     // This will update user's modifiable properties
     return res
       .status(HttpStatus.METHOD_NOT_ALLOWED)
