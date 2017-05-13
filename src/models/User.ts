@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema(
       index: {
         unique: true,
       },
+      match: /^[a-zA-Z0-9-_]{3,}$/,
       required: true,
       type: String,
     },
