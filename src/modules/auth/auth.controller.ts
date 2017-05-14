@@ -59,13 +59,11 @@ export class AuthController {
 
       const token = await this.authService.createToken(createdUser);
 
-      return res
-        .status(HttpStatus.CREATED)
-        .json({
-          displayname: createdUser.displayname,
-          username: createdUser.username,
-          token,
-        });
+      return res.status(HttpStatus.CREATED).json({
+        displayname: createdUser.displayname,
+        username: createdUser.username,
+        token,
+      });
 
     } catch (err) {
       console.error('[auth] register - internal error', err);
@@ -98,13 +96,11 @@ export class AuthController {
           throw new Error('Failed to generate token');
         }
 
-        return res
-          .status(HttpStatus.OK)
-          .json({
-            displayname: user.displayname,
-            username: user.username,
-            token,
-          });
+        return res.status(HttpStatus.OK).json({
+          displayname: user.displayname,
+          username: user.username,
+          token,
+        });
       }
       console.warn(`[auth] user '${user.username}' failed to authenticate`);
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
@@ -122,8 +118,6 @@ export class AuthController {
     @Body() body,
   ) {
     // This will update user's modifiable properties
-    return res
-      .status(HttpStatus.METHOD_NOT_ALLOWED)
-      .json({ error: 'Not yet implemented' });
+    throw new HttpException('Not yet implemented', HttpStatus.METHOD_NOT_ALLOWED);
   }
 }

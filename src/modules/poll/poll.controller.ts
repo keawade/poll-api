@@ -26,20 +26,7 @@ export class PollController {
     @Response() res,
   ) {
     const polls = await this.pollService.getUsersPolls(req.user.username);
-    return res
-      .status(HttpStatus.OK)
-      .json(polls);
-  }
-
-  @Get(':id')
-  public async getPollById(
-    @Param('id') id,
-    @Response() res,
-  ) {
-    const poll = await this.pollService.getPollById(id);
-    return res
-      .status(HttpStatus.OK)
-      .json(poll);
+    return res.status(HttpStatus.OK).json(polls);
   }
 
   @Post()
@@ -64,8 +51,23 @@ export class PollController {
 
     const poll = await this.pollService.createPoll(pollData);
 
-    return res
-      .status(HttpStatus.CREATED)
-      .json(poll);
+    return res.status(HttpStatus.CREATED).json(poll);
+  }
+
+  @Get(':id')
+  public async getPollById(
+    @Param('id') id,
+    @Response() res,
+  ) {
+    const poll = await this.pollService.getPollById(id);
+    return res.status(HttpStatus.OK).json(poll);
+  }
+
+  @Post(':id')
+  public async respondToPoll(
+    @Param('id') id,
+    @Response() res,
+  ) {
+    throw new HttpException('Not yet implemented', HttpStatus.METHOD_NOT_ALLOWED);
   }
 }
