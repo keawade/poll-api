@@ -1,5 +1,5 @@
 import * as jwt from 'jsonwebtoken';
-import { Component, HttpException } from 'nest.js';
+import { Component, HttpException, HttpStatus } from 'nest.js';
 import User from '../../models/User';
 
 @Component()
@@ -10,11 +10,11 @@ export class AuthService {
     try {
       const user: any = await User.findOne({ username }, `username displayname${password ? ' password' : ''}`);
       if (!user) {
-        throw new HttpException('User does not exist', 404);
+        throw new HttpException('User does not exist', HttpStatus.NOT_FOUND);
       }
       return user as IUser;
     } catch (err) {
-      throw new HttpException('User does not exist', 404);
+      throw new HttpException('User does not exist', HttpStatus.NOT_FOUND);
     }
   }
 
@@ -23,7 +23,7 @@ export class AuthService {
       await new User(user).save();
       return await this.getUser(user.username);
     } catch (err) {
-      throw new HttpException('Failed to create user', 500);
+      throw new HttpException('Failed to create user', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -34,7 +34,7 @@ export class AuthService {
         username: user.username,
       }, this.jwtSecret, { expiresIn: '2 days' });
     } catch (err) {
-      throw new HttpException('Failed to create token', 500);
+      throw new HttpException('Failed to create token', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -43,11 +43,11 @@ export class AuthService {
       const decoded = jwt.verify(token, this.jwtSecret, { maxAge: '2 days' });
       const user = await this.getUser(decoded.username);
       if (!user) {
-        throw new HttpException('User does not exist', 403);
+        throw new HttpException('User does not exist', HttpStatus.FORBIDDEN);
       }
       return user;
     } catch (err) {
-      throw new HttpException('Unauthorized', 401);
+      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
   }
 }

@@ -51,7 +51,7 @@ export class PollController {
     @Response() res,
   ) {
     if (!question || !options || options.length < 2) {
-      throw new HttpException('Incomplete parameters', 400);
+      throw new HttpException('Incomplete parameters', HttpStatus.BAD_REQUEST);
     }
 
     const pollData = {

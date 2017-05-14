@@ -28,15 +28,15 @@ export class AuthController {
   ) {
     try {
       if (!username || !displayname || !password) {
-        throw new HttpException('Incomplete parameters', 400);
+        throw new HttpException('Incomplete parameters', HttpStatus.BAD_REQUEST);
       }
 
       if (!username.match(/^[\w-]{3,}$/)) {
-        throw new HttpException('Invalid username', 400);
+        throw new HttpException('Invalid username', HttpStatus.BAD_REQUEST);
       }
 
       if (await this.authService.getUser(username)) {
-        throw new HttpException('User already exists', 409);
+        throw new HttpException('User already exists', HttpStatus.CONFLICT);
       }
 
       if (
@@ -45,7 +45,7 @@ export class AuthController {
         !password.match(new RegExp(/[A-Z]/, 'g')) ||
         !password.match(new RegExp(/[0-9]/, 'g'))
       ) {
-        throw new HttpException('Invalid password', 400);
+        throw new HttpException('Invalid password', HttpStatus.BAD_REQUEST);
       }
 
       // Encrypt password
@@ -69,7 +69,7 @@ export class AuthController {
 
     } catch (err) {
       console.error('[auth] register - internal error', err);
-      throw new HttpException('Failed to create user', 500);
+      throw new HttpException('Failed to create user', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -81,13 +81,13 @@ export class AuthController {
   ) {
     try {
       if (!username || !password) {
-        throw new HttpException('Incomplete parameters', 400);
+        throw new HttpException('Incomplete parameters', HttpStatus.BAD_REQUEST);
       }
 
       const user = await this.authService.getUser(username, true);
       if (!user) {
         console.error(`[auth] failed to login`);
-        throw new HttpException('Unauthorized', 401);
+        throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
       }
 
       if (bcrypt.compareSync(password, user.password)) {
@@ -107,10 +107,10 @@ export class AuthController {
           });
       }
       console.warn(`[auth] user '${user.username}' failed to authenticate`);
-      throw new HttpException('Unauthorized', 401);
+      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     } catch (err) {
       console.error('[auth] login - internal error', err);
-      throw new HttpException('Login failed', 500);
+      throw new HttpException('Login failed', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

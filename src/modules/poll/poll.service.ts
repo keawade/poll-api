@@ -1,4 +1,4 @@
-import { Component, HttpException } from 'nest.js';
+import { Component, HttpException, HttpStatus } from 'nest.js';
 import Poll from '../../models/Poll';
 
 @Component()
@@ -17,7 +17,7 @@ export class PollService {
   public async getPollById(id: string) {
     const poll: any = await Poll.findOne({ _id: id }, '_id options owner question responses visiblity createdAt');
     if (!poll) {
-      throw new HttpException('Poll not found', 404);
+      throw new HttpException('Poll not found', HttpStatus.NOT_FOUND);
     }
     return poll as IPoll;
   }
@@ -27,7 +27,7 @@ export class PollService {
       const newPoll = await new Poll(poll).save();
       return await this.getPollById(newPoll._id);
     } catch (err) {
-      throw new HttpException('Failed to create poll', 500);
+      throw new HttpException('Failed to create poll', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }
