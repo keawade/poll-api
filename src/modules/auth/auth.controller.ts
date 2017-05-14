@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Headers,
+  HttpException,
   HttpStatus,
   Param,
   Post,
@@ -27,21 +28,15 @@ export class AuthController {
   ) {
     try {
       if (!username || !displayname || !password) {
-        return res
-          .status(HttpStatus.BAD_REQUEST)
-          .json({ error: 'User object not valid' });
+        throw new HttpException('Incomplete parameters', 400);
       }
 
       if (!username.match(/^[\w-]{3,}$/)) {
-        return res
-          .status(HttpStatus.BAD_REQUEST)
-          .json({ error: 'Username invalid' });
+        throw new HttpException('Invalid username', 400);
       }
 
       if (await this.authService.getUser(username)) {
-        return res
-          .status(HttpStatus.CONFLICT)
-          .json({ error: 'User already exists' });
+        throw new HttpException('User already exists', 409);
       }
 
       if (
@@ -50,9 +45,7 @@ export class AuthController {
         !password.match(new RegExp(/[A-Z]/, 'g')) ||
         !password.match(new RegExp(/[0-9]/, 'g'))
       ) {
-        return res
-          .status(HttpStatus.BAD_REQUEST)
-          .json({ error: 'Password to simple' });
+        throw new HttpException('Invalid password', 400);
       }
 
       // Encrypt password
@@ -63,10 +56,6 @@ export class AuthController {
         password,
         username,
       });
-
-      if (!createdUser) {
-        throw new Error();
-      }
 
       const token = await this.authService.createToken(createdUser);
 
@@ -80,9 +69,7 @@ export class AuthController {
 
     } catch (err) {
       console.error('[auth] register - internal error', err);
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ error: 'Failed to create user' });
+      throw new HttpException('Failed to create user', 500);
     }
   }
 
@@ -94,17 +81,13 @@ export class AuthController {
   ) {
     try {
       if (!username || !password) {
-        return res
-          .status(HttpStatus.BAD_REQUEST)
-          .json({ error: 'User object not valid' });
+        throw new HttpException('Incomplete parameters', 400);
       }
 
-      const user = await this.authService.getUser(username);
+      const user = await this.authService.getUser(username, true);
       if (!user) {
         console.error(`[auth] failed to login`);
-        return res
-          .status(HttpStatus.UNAUTHORIZED)
-          .json({ error: 'Unauthorized' });
+        throw new HttpException('Unauthorized', 401);
       }
 
       if (bcrypt.compareSync(password, user.password)) {
@@ -122,17 +105,12 @@ export class AuthController {
             username: user.username,
             token,
           });
-      } else {
-        console.warn(`[auth] user '${user.username}' failed to authenticate`);
-        return res
-          .status(HttpStatus.UNAUTHORIZED)
-          .json({ error: 'Unauthorized' });
       }
+      console.warn(`[auth] user '${user.username}' failed to authenticate`);
+      throw new HttpException('Unauthorized', 401);
     } catch (err) {
       console.error('[auth] login - internal error', err);
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ error: 'Failed to login' });
+      throw new HttpException('Login failed', 500);
     }
   }
 

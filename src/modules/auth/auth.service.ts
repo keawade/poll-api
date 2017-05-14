@@ -1,38 +1,29 @@
 import * as jwt from 'jsonwebtoken';
-import { Component } from 'nest.js';
+import { Component, HttpException } from 'nest.js';
 import User from '../../models/User';
 
 @Component()
 export class AuthService {
   private jwtSecret = process.env.JWT_SECRET || 'asldfkjasldfjaslkdjfalksgjhoiuqfbhdnvijknb';
 
-  public async getUser(username: string) {
+  public async getUser(username: string, password: boolean = false) {
     try {
-      const doc: any = await User.findOne({ username });
-      if (!doc) {
-        throw new Error('User does not exist');
+      const user: any = await User.findOne({ username }, `username displayname${password ? ' password' : ''}`);
+      if (!user) {
+        throw new HttpException('User does not exist', 404);
       }
-      return {
-        displayname: doc.displayname,
-        password: doc.password,
-        username: doc.username,
-      } as IUser;
+      return user as IUser;
     } catch (err) {
-      return null;
+      throw new HttpException('User does not exist', 404);
     }
   }
 
   public async createUser(user: IUser) {
     try {
-      console.log('create');
-      const newUser: any = await new User(user).save();
-      return {
-        displayname: newUser.displayname,
-        password: newUser.password,
-        username: newUser.username,
-      } as IUser;
+      await new User(user).save();
+      return await this.getUser(user.username);
     } catch (err) {
-      return null;
+      throw new HttpException('Failed to create user', 500);
     }
   }
 
@@ -43,7 +34,7 @@ export class AuthService {
         username: user.username,
       }, this.jwtSecret, { expiresIn: '2 days' });
     } catch (err) {
-      return null;
+      throw new HttpException('Failed to create token', 500);
     }
   }
 
@@ -52,11 +43,11 @@ export class AuthService {
       const decoded = jwt.verify(token, this.jwtSecret, { maxAge: '2 days' });
       const user = await this.getUser(decoded.username);
       if (!user) {
-        throw new Error('User does not exist');
+        throw new HttpException('User does not exist', 403);
       }
       return user;
     } catch (err) {
-      return null;
+      throw new HttpException('Unauthorized', 401);
     }
   }
 }

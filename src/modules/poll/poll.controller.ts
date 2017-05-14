@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Headers,
+  HttpException,
   HttpStatus,
   Param,
   Post,
@@ -21,7 +22,6 @@ export class PollController {
 
   @Get()
   public async getAllPolls(
-    @Headers('token') token: string,
     @Request() req,
     @Response() res,
   ) {
@@ -31,53 +31,41 @@ export class PollController {
       .json(polls);
   }
 
+  @Get(':id')
+  public async getPollById(
+    @Param('id') id,
+    @Response() res,
+  ) {
+    const poll = await this.pollService.getPollById(id);
+    return res
+      .status(HttpStatus.OK)
+      .json(poll);
+  }
+
   @Post()
   public async createPoll(
     @Body('question') question: string,
     @Body('options') options: string[],
     @Body('visibility') visibility: 'private' | 'public' = 'public',
-    @Headers('token') token: string,
     @Request() req,
     @Response() res,
   ) {
-    try {
-      // let decoded;
-      // try {
-      //   decoded = jwt.verify(token, 'asldfkjasldfjaslkdjfalksgjhoiuqfbhdnvijknb');
-      // } catch (err) {
-      //   return res
-      //     .status(HttpStatus.UNAUTHORIZED)
-      //     .json({ error: 'Unauthorized' });
-      // }
-
-      // const user = await this.authService.getUser(decoded.username);
-      if (!req.user) {
-        return res
-          .status(HttpStatus.UNAUTHORIZED)
-          .json({ error: 'Unauthorized' });
-      }
-
-      const pollData = {
-        owner: req.user.username,
-        question,
-        options,
-        responses: [],
-        visibility,
-      };
-
-      const poll = await this.pollService.createPoll(pollData);
-
-      if (!poll) {
-        throw new Error('Failed to create poll');
-      }
-
-      return res
-        .status(HttpStatus.CREATED)
-        .json(poll);
-    } catch (err) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ error: err });
+    if (!question || !options || options.length < 2) {
+      throw new HttpException('Incomplete parameters', 400);
     }
+
+    const pollData = {
+      owner: req.user.username,
+      question,
+      options,
+      responses: [],
+      visibility,
+    };
+
+    const poll = await this.pollService.createPoll(pollData);
+
+    return res
+      .status(HttpStatus.CREATED)
+      .json(poll);
   }
 }
