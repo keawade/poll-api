@@ -7,7 +7,7 @@ interface IUser {
 
 interface IPoll {
   _id?: string;
-  options: string[];
+  responseOptions: string[];
   owner: string;
   question: string;
   responses: IPollResponse[];
@@ -15,7 +15,6 @@ interface IPoll {
 }
 
 interface IPollResponse {
-  _id?: string;
-  user: string;
+  username: string;
   response: string;
 }

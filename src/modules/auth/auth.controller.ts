@@ -35,7 +35,7 @@ export class AuthController {
         throw new HttpException('Invalid username', HttpStatus.BAD_REQUEST);
       }
 
-      if (await this.authService.getUser(username)) {
+      if (await this.authService.userExists(username)) {
         throw new HttpException('User already exists', HttpStatus.CONFLICT);
       }
 

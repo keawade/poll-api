@@ -6,6 +6,14 @@ import User from '../../models/User';
 export class AuthService {
   private jwtSecret = process.env.JWT_SECRET || 'asldfkjasldfjaslkdjfalksgjhoiuqfbhdnvijknb';
 
+  public async userExists(username: string) {
+    const user: any = await User.findOne({ username });
+    if (!user) {
+      return false;
+    }
+    return true;
+  }
+
   public async getUser(username: string, password: boolean = false) {
     try {
       const user: any = await User.findOne({ username }, `username displayname${password ? ' password' : ''}`);
@@ -14,7 +22,7 @@ export class AuthService {
       }
       return user as IUser;
     } catch (err) {
-      throw new HttpException('User does not exist', HttpStatus.NOT_FOUND);
+      throw new HttpException('Failed to get user', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

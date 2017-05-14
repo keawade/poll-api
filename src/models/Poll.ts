@@ -2,10 +2,6 @@ import * as mongoose from 'mongoose';
 
 const pollSchema = new mongoose.Schema(
   {
-    options: {
-      required: true,
-      type: [String],
-    },
     owner: {
       required: true,
       type: String,
@@ -14,12 +10,16 @@ const pollSchema = new mongoose.Schema(
       required: true,
       type: String,
     },
+    responseOptions: {
+      required: true,
+      type: [String],
+    },
     responses: [{
       response: {
         required: true,
         type: String,
       },
-      user: {
+      username: {
         required: true,
         type: String,
       },

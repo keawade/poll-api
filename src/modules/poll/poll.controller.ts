@@ -32,19 +32,19 @@ export class PollController {
   @Post()
   public async createPoll(
     @Body('question') question: string,
-    @Body('options') options: string[],
+    @Body('responseOptions') responseOptions: string[],
     @Body('visibility') visibility: 'private' | 'public' = 'public',
     @Request() req,
     @Response() res,
   ) {
-    if (!question || !options || options.length < 2) {
+    if (!question || !responseOptions || responseOptions.length < 2) {
       throw new HttpException('Incomplete parameters', HttpStatus.BAD_REQUEST);
     }
 
     const pollData = {
       owner: req.user.username,
       question,
-      options,
+      responseOptions,
       responses: [],
       visibility,
     };
@@ -66,8 +66,11 @@ export class PollController {
   @Post(':id')
   public async respondToPoll(
     @Param('id') id,
+    @Body('response') response,
     @Response() res,
+    @Request() req,
   ) {
-    throw new HttpException('Not yet implemented', HttpStatus.METHOD_NOT_ALLOWED);
+    await this.pollService.respondToPoll(id, response, req.user.username);
+    return res.status(HttpStatus.OK);
   }
 }
