@@ -7,8 +7,13 @@ import * as morgan from 'morgan';
 import { NestFactory } from 'nest.js';
 import { ApplicationModule } from './modules/app.module';
 
+const dbUser = process.env.DB_USER || '';
+const dbPass = process.env.DB_PASS || '';
+const dbAddr = process.env.DB_ADDR || 'ds011923.mlab.com:11923';
+const dbName = process.env.DB_NAME || 'reservations';
+
 (mongoose as any).Promise = global.Promise;
-mongoose.connect(process.env.DB_ADDRESS || 'mongodb://localhost/poll-api');
+mongoose.connect(`mongodb://${dbUser && dbPass ? `${dbUser}:${dbPass}@` : ''}${dbAddr}/${dbName}`);
 mongoose.connection.on('connected', () => {
   console.log(`[server] database connection established`);
 });

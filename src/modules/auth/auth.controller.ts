@@ -12,7 +12,7 @@ import {
 } from 'nest.js';
 import { AuthService } from './auth.service';
 
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt-nodejs';
 
 @Controller('auth')
 export class AuthController {
@@ -49,7 +49,7 @@ export class AuthController {
       }
 
       // Encrypt password
-      password = bcrypt.hashSync(password, 10);
+      password = bcrypt.hashSync(password);
 
       const createdUser = await this.authService.createUser({
         displayname,
