@@ -77,37 +77,32 @@ export class AuthController {
     @Body('username') username,
     @Body('password') password,
   ) {
-    try {
-      if (!username || !password) {
-        throw new HttpException('Incomplete parameters', HttpStatus.BAD_REQUEST);
-      }
-
-      const user = await this.authService.getUser(username, true);
-      if (!user) {
-        console.error(`[auth] failed to login`);
-        throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
-      }
-
-      if (bcrypt.compareSync(password, user.password)) {
-        console.info(`[auth] user '${user.username}' logged in`);
-
-        const token = await this.authService.createToken(user);
-        if (!token) {
-          throw new Error('Failed to generate token');
-        }
-
-        return res.status(HttpStatus.OK).json({
-          displayname: user.displayname,
-          username: user.username,
-          token,
-        });
-      }
-      console.warn(`[auth] user '${user.username}' failed to authenticate`);
-      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
-    } catch (err) {
-      console.error('[auth] login - internal error', err);
-      throw new HttpException('Login failed', HttpStatus.INTERNAL_SERVER_ERROR);
+    if (!username || !password) {
+      throw new HttpException('Incomplete parameters', HttpStatus.BAD_REQUEST);
     }
+
+    const user = await this.authService.getUser(username, true);
+    if (!user) {
+      console.error(`[auth] failed to login`);
+      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+    }
+
+    if (bcrypt.compareSync(password, user.password)) {
+      console.info(`[auth] user '${user.username}' logged in`);
+
+      const token = await this.authService.createToken(user);
+      if (!token) {
+        throw new Error('Failed to generate token');
+      }
+
+      return res.status(HttpStatus.OK).json({
+        displayname: user.displayname,
+        username: user.username,
+        token,
+      });
+    }
+
+    throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
   }
 
   @Post(':user')
