@@ -40,7 +40,7 @@ export class AuthController {
       }
 
       if (
-        !(password.length > 8) ||
+        !(password.length >= 8) ||
         !password.match(new RegExp(/[a-z]/, 'g')) ||
         !password.match(new RegExp(/[A-Z]/, 'g')) ||
         !password.match(new RegExp(/[0-9]/, 'g'))

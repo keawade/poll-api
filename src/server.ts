@@ -9,8 +9,8 @@ import { ApplicationModule } from './modules/app.module';
 
 const dbUser = process.env.DB_USER || '';
 const dbPass = process.env.DB_PASS || '';
-const dbAddr = process.env.DB_ADDR || 'ds011923.mlab.com:11923';
-const dbName = process.env.DB_NAME || 'reservations';
+const dbAddr = process.env.DB_ADDR || 'localhost';
+const dbName = process.env.DB_NAME || 'poll-api';
 
 (mongoose as any).Promise = global.Promise;
 mongoose.connect(`mongodb://${dbUser && dbPass ? `${dbUser}:${dbPass}@` : ''}${dbAddr}/${dbName}`);
