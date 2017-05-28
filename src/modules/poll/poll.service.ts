@@ -52,9 +52,8 @@ export class PollService {
         throw new HttpException('Invalid parameter', HttpStatus.BAD_REQUEST);
       }
 
-      const position = poll.responses.map((res) => (res.username)).indexOf(username);
-      if (position > -1) {
-        poll.responses.splice(position, 1);
+      if (poll.responses.filter((res) => (res.username === username)).length > 0) {
+        throw new HttpException('Response already recorded', HttpStatus.CONFLICT);
       }
 
       poll.responses.push({
