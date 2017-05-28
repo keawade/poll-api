@@ -40,29 +40,33 @@ export class PollService {
   }
 
   public async respondToPoll(id: string, response: string, username: string) {
-    console.info(`[poll] user '${username}' responding to poll '${id}' with '${response}'`);
-    const poll = await this.getPollById(id, username);
+    try {
+      console.info(`[poll] user '${username}' responding to poll '${id}' with '${response}'`);
+      const poll = await this.getPollById(id, username);
 
-    if (!poll) {
-      throw new HttpException('Poll not found', HttpStatus.NOT_FOUND);
-    }
+      if (!poll) {
+        throw new HttpException('Poll not found', HttpStatus.NOT_FOUND);
+      }
 
-    if (poll.responseOptions.indexOf(response) === -1) {
-      throw new HttpException('Invalid parameter', HttpStatus.BAD_REQUEST);
-    }
+      if (poll.responseOptions.indexOf(response) === -1) {
+        throw new HttpException('Invalid parameter', HttpStatus.BAD_REQUEST);
+      }
 
-    const position = poll.responses.map((res) => (res.username)).indexOf(username);
-    if (position > -1) {
-      poll.responses[position].response = response;
-      // throw new HttpException('Response already recorded', HttpStatus.CONFLICT);
-    } else {
+      const position = poll.responses.map((res) => (res.username)).indexOf(username);
+      if (position > -1) {
+        poll.responses.splice(position, 1);
+      }
+
       poll.responses.push({
         response,
         username,
       });
-    }
 
-    await Poll.findOneAndUpdate({ _id: poll._id }, poll);
-    return;
+      await Poll.findOneAndUpdate({ _id: poll._id }, poll);
+      return;
+    } catch (err) {
+      console.error('respondToPoll failed', err);
+      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
