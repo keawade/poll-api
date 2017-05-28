@@ -51,14 +51,16 @@ export class PollService {
       throw new HttpException('Invalid parameter', HttpStatus.BAD_REQUEST);
     }
 
-    if (poll.responses.filter((res) => (res.username === username)).length > 0) {
-      throw new HttpException('Response already recorded', HttpStatus.CONFLICT);
+    const position = poll.responses.map((res) => (res.username)).indexOf(username);
+    if (position > -1) {
+      poll.responses[position].response = response;
+      // throw new HttpException('Response already recorded', HttpStatus.CONFLICT);
+    } else {
+      poll.responses.push({
+        response,
+        username,
+      });
     }
-
-    poll.responses.push({
-      response,
-      username,
-    });
 
     await Poll.findOneAndUpdate({ _id: poll._id }, poll);
     return;
